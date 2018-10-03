@@ -1,10 +1,10 @@
-# fluro angular boilerplate
+# Fluro AngularJS Boilerplate
 Starter kit for building a fluro angular app
 
 # Getting Started
 Clone boilerplate repository
 ~~~~
-git clone git@bitbucket.org:CadeEmbery/fluro-angular-boilerplate.git MYAPPLICATIONNAME
+git clone https://github.com/fluro-developers/fluro-angularjs-boilerplate YOURAPPLICATIONNAME
 ~~~~
 
 Create a new repository for your project, then set remote url to new repository

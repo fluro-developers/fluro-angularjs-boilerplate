@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html ng-app="fluro">
+<head>
+    <meta charset="utf-8">
+
+    <title ng-bind="$root.seo.headTitle"></title>
+    <meta name="description" content="{{ $root.seo.getDescription() | plaintext }}">
+    <meta name="fragment" content="!">
+
+    <!-- Facebook -->
+    <meta property="fb:app_id"          content="387340101438406" />
+    <meta property="og:site_name" content="{{$root.applicationData.publicData.siteName}}"/>
+    <meta property="og:title"           content="{{ $root.seo.headTitle }}" ng-if="$root.seo.headTitle.length"/>
+    <meta property="og:description"     content="{{ $root.seo.getDescription() | plaintext }}"/>
+    <meta property="og:type"            content="website" />
+    <meta property="og:url"             content="{{ $root.seo.fullURL }}" ng-if="$root.seo.fullURL"/>
+    <meta property="og:image"           content="{{ $root.seo.getImageURL() }}" ng-if="$root.seo.getImageURL()"/>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+
+
+    <!-- fluro:devstart -->
+    <!--//////////////////////////////////////////-->
+
+    <!-- Fluro Support -->
+    <meta property="fluro_url" content="https://api.staging.fluro.io">
+
+    <!-- Change to your application domain name / url -->
+    <meta property="app_dev_url" content="http://support.fluro.io">
+
+    <!-- Comment this out to use the current logged in user cookie-->
+    <!-- <meta property="fluro_application_key" content="YOUR_APPLICATION_KEY"> -->
+
+    <!--//////////////////////////////////////////-->
+    <!-- fluro:devend -->
+
+    <!--//////////////////////////////////////////-->
+    <!-- fluro:config -->
+    <!--//////////////////////////////////////////-->
+
+
+    <!--//////////////////////////////////////////-->
+    <!-- build:css /css/vendor.css -->
+    <!-- bower:css -->
+    <!-- endbower -->
+    <link rel="stylesheet" href="/bower_components/font-awesome/css/font-awesome.css" />
+    <!-- endbuild -->
+
+    <!-- fluro:beforecss -->
+    <!-- build:css /css/style.min.css -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- endbuild -->
+    <!-- fluro:aftercss -->
+    <!--//////////////////////////////////////////-->
+
+    <!--//////////////////////////////////////////-->
+    <!-- fluro:googleanalytics -->
+    <!-- fluro:headerinject -->
+    <!--//////////////////////////////////////////-->
+
+    <base href="/">
+</head>
+<body ng-cloak>
+
+    <fluro-preloader></fluro-preloader>
+
+    <!-- app-wrapper -->
+    <div class="layout-outer" ng-class="{'expanded': $root.sidebarExpanded == true}">
+
+        <a class="btn-hamburger" ng-click="$root.sidebarExpanded = !$root.sidebarExpanded">
+            <hamburger ng-class="{open:$root.sidebarExpanded}"></hamburger>
+        </a>
+
+
+        <header class="masthead">
+
+            <div ng-if="$root.breadcrumb.trail.length <= 1 ">
+                <a class="logo-name" ui-sref-active="active" ui-sref="home">
+                    <span>{{$root.applicationData._application.title}}</span>
+                </a>
+            </div>
+            <div class="pull-left" ng-if="$root.breadcrumb.trail.length > 1">
+                <a class="btn-masthead" ng-click="$root.breadcrumb.back()">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+                <a class="btn-masthead btn-home" ng-click="$root.breadcrumb.top()">
+                    <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                    viewBox="0 0 70 70" enable-background="new 0 0 70 70" xml:space="preserve">
+                    <path id="XMLID_59_" fill="#231F20" d="M38.9,62.3V41.1h-7.9v21.2H9.5V30.5H4.5L35,0l30.5,30.5h-5.1v31.7H38.9z M42.8,58.4h13.8
+                    V28.1L35,5.5L13.4,28.1v30.3h13.8V37.2h15.6V58.4z"/>
+                </svg>
+            </a>
+        </div>
+
+        <div class="masthead-menu">
+            <ul ng-show="$root.user">
+                <li>
+                    <a ui-sref-active="active" ui-sref="search">
+                        <i class="fa fa-fw fa-search"></i>
+                        <span>{{'Search' | reword}}</span>
+                    </a>
+                </li>
+            </ul>
+            <ul ng-hide="$root.user">
+                <li>
+                    <a ui-sref-active="active" ui-sref-active="active" ui-sref="login.form">
+                        <span>{{'Login' | reword}}</span>
+                    </a>
+                </li>
+                <li ng-if="!$root.applicationData.disable.signup">
+                    <a ui-sref-active="active" ui-sref-active="active" ui-sref="signup">
+                        <span>{{'Signup' | reword}}</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </header>
+
+
+
+
+    <div class="layout-main">
+        <div class="main-view" ui-view></div>
+        <div id="footer" class="footer">
+            <div class="wrapper-xs">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 text-center text-sm-left">
+                            <ul class="list-inline">
+                                <li>
+                                    <a>Privacy Policy</a>
+                                </li>
+                                <li>
+                                    <a>Terms &amp; Conditions</a>
+                                </li>
+                                <li>
+                                    <a href="https://www.fluro.io">Powered by Fluro</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-xs-12 col-sm-6  text-center text-sm-right">
+                            <div class="btn-group">
+                                <a class="btn btn-link" ng-href="mailto:{{$root.applicationData.supportEmail}}">
+                                    <i class="fa fa-fw fa-envelope"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- overlay when sidebar is expanded -->
+    <div class="layout-blanket" ng-click="$root.sidebarExpanded = false"></div>
+
+    <!-- sidebar -->
+    <div class="layout-sidebar">
+        <div class="layout-sidebar-content">
+            <a class="sidebar-block border-bottom" ui-sref-active="active" ui-sref="myaccount" ng-if="$root.user">
+                <div class="row">
+                    <div class="col-xs-3">
+                        <div class="avatar">
+                            <img preload-image aspect="100" ng-src="{{$root.asset.avatarUrl($root.user.persona, 'persona', {w:80, h:80, cb:$root.avatarCache.buster})}}">
+                        </div>
+                    </div>
+                    <div class="col-xs-9">
+                        <h4>{{$root.user.firstName}} {{$root.user.lastName}}</h4>
+                    </div>
+                </div>
+            </a>
+
+
+            <a class="sidebar-block border-bottom" href="/#" ng-click="$root.sidebarExpanded = false;" ng-if="!$root.user">
+                <!-- When user isn't logged in maybe show a logo or something -->
+                {{$root.applicationData._application.title}}
+            </a>
+
+            <!-- Logged in User Menu -->
+            <div ng-if="$root.user">
+                <ul class="sidebar-menu">
+                    <li>
+                        <a ui-sref-active="active" ui-sref="home"></a>
+                    </li>
+                    <li>
+                        <a ui-sref-active="active" ui-sref="search">Search</a>
+                    </li>
+                    <li>
+                        <a ng-click="$root.logout()">Sign Out</a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Logged out visitor -->
+            <div ng-if="!$root.user">
+                <ul class="sidebar-menu" >
+                    <li>
+                        <a ui-sref-active="active" ui-sref="home">Home</a>
+                    </li>
+                    <li>
+                        <a ui-sref-active="active" ui-sref="login.form">Login</a>
+                    </li>
+                    <li>
+                        <a ui-sref-active="active" ui-sref-active="active" ui-sref="signup">Signup</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="sidebar-external-links">
+                <ul class="list-unstyled">
+                    <li>
+                        <a target="_blank">Small Link 1</a>
+                    </li>
+                    <li>
+                        <a target="_blank">Small Link 2</a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="sidebar-social-links">
+
+                <a target="_blank" ng-repeat="social in ['facebook', 'instagram', 'vimeo','envelope']">
+                    <i class="fa fa-fw fa-{{social}}"></i>
+                </a>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- build:js /js/vendor.js -->
+<!-- bower:js -->
+<script src="/bower_components/jquery/dist/jquery.js"></script>
+<script src="/bower_components/angular/angular.js"></script>
+<script src="/bower_components/angular-animate/angular-animate.js"></script>
+<script src="/bower_components/angular-resource/angular-resource.js"></script>
+<script src="/bower_components/angular-touch/angular-touch.js"></script>
+<script src="/bower_components/angular-ui-router/release/angular-ui-router.js"></script>
+<script src="/bower_components/ngstorage/ngStorage.js"></script>
+<script src="/bower_components/fluro.config/dist/fluro.config.js"></script>
+<script src="/bower_components/fluro.util/dist/fluro.util.js"></script>
+<script src="/bower_components/lodash/lodash.js"></script>
+<script src="/bower_components/fluro.content/dist/fluro.content.js"></script>
+<script src="/bower_components/fluro.asset/dist/fluro.asset.js"></script>
+<script src="/bower_components/moment/moment.js"></script>
+<script src="/bower_components/angular-filter/dist/angular-filter.js"></script>
+<script src="/bower_components/angular-youtube-mb/src/angular-youtube-embed.js"></script>
+<script src="/bower_components/fluro.video/dist/fluro.video.js"></script>
+<script src="/bower_components/fluro.socket/dist/fluro.socket.js"></script>
+<script src="/bower_components/api-check/dist/api-check.js"></script>
+<script src="/bower_components/angular-formly/dist/formly.js"></script>
+<script src="/bower_components/angular-formly-templates-bootstrap/dist/angular-formly-templates-bootstrap.js"></script>
+<script src="/bower_components/fluro.access/dist/fluro.access.js"></script>
+<script src="/bower_components/validator-js/validator.js"></script>
+<script src="/bower_components/fluro.validate/dist/fluro.validate.js"></script>
+<script src="/bower_components/fluro-interactions/dist/fluro.interactions.js"></script>
+<script src="/bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+<script src="/bower_components/SHA-1/sha1.js"></script>
+<script src="/bower_components/angulartics/src/angulartics.js"></script>
+<script src="/bower_components/angulartics-google-analytics/lib/angulartics-ga.js"></script>
+<!-- endbower -->
+<script src="/bower_components/angular-formly-templates-bootstrap/dist/angular-formly-templates-bootstrap.js"></script>
+<!-- endbuild -->
+
+
+<!-- fluro:appdata -->
+
+<!-- build:js /js/app.js -->
+<script src="/js/app.js"></script>
+<script src="/js/templates.js"></script>
+<!-- endbuild -->
+
+<!-- fluro:devstart -->
+<!--//////////////////////////////////////////-->
+<!-- LOCAL CODE ONLY-->
+<script src="http://localhost:9002/livereload.js"></script>
+
+<!-- This retrieves any data defined on the application itself -->
+<script src="http://support.fluro.io/appdata.js" type="text/javascript"></script>
+<!--//////////////////////////////////////////-->
+<!-- fluro:devend -->
+<!-- fluro:footerinject -->
+
+
+
+
+</body>
+</html>

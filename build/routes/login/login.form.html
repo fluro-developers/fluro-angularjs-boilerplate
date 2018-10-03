@@ -1,0 +1,56 @@
+<div class="wrapper">
+	<div class="container" ng-switch="settings.state">
+		<div class="text-wrap-sm">
+			<div class="alert alert-danger" ng-show="settings.error">
+				<i class="fa fa-warning"></i>
+				<span>{{settings.error}}</span>
+			</div>
+
+			<div class="text-center" ng-switch-when="processing">
+				<i class="fa lnr lnr-sync fa-spin fa-3x"></i>
+				<h4>Signing you in</h4>
+			</div>
+
+			<div class="text-center" ng-switch-when="complete">
+				<h4>Log in Complete</h4>
+			</div>
+
+			<div ng-switch-default>
+				<div class="wrapper-title">
+					<h3 >Login</h3>
+					<p class="lead">Please log in to continue</p>
+
+				</div>
+				<form ng-submit="login()">
+
+					<div class="form-group-underline">
+						<!-- <label>Email Address</label> -->
+						<input ng-model="credentials.username" type="email" name="credentialsEmail" />
+						<label for="credentialsEmail" tabindex="-1"><span>Email Address</span></label>
+					</div>
+
+					<div class="form-group-underline">
+						<!-- <label>Password</label> -->
+						<input ng-model="credentials.password" type="password" name="credentialsPassword"/>
+						<label for="credentialsPassword" tabindex="-1"><span>Password</span></label>
+
+					</div>
+
+					<div class="wrapper-xs">
+						<!-- <div class="row"> -->
+						<!-- <div class="col-sm-5 stacked-xs"> -->
+						<button class="btn btn-block btn-primary">
+							<span>Login</span>
+							<!-- <i class="fa fa-angle-right"></i> -->
+						</button>
+						<!-- </div> -->
+						<!-- <div class="col-sm-7  stacked-xs"> -->
+						<a class="btn btn-block btn-default" ng-if="!$root.applicationData.disable.signup" ui-sref="signup">Create new account</a>
+						<a class="btn btn-block btn-link" ui-sref="login.forgot">Forgotten your password?</a>
+						<!-- </div> -->
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>

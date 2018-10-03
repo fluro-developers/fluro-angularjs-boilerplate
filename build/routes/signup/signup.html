@@ -1,0 +1,77 @@
+<div class="wrapper">
+	<div class="container" ng-switch="settings.state">
+
+		<div class="text-wrap">
+
+			<div class="alert alert-danger" ng-show="settings.error">
+				<i class="fa fa-warning"></i> 
+				<span>{{settings.error}}</span>
+			</div>
+
+			<div class="text-center" ng-switch-when="processing">
+				<i class="lnr lnr-sync fa fa-spin fa-3x"></i>
+				<h4>Creating your account</h4>
+			</div>
+
+			<div class="text-center" ng-switch-when="complete">
+				
+				<h4>Signup Complete</h4>
+			</div>
+
+			<div ng-switch-default class="">
+
+				<h3>Signup</h3>
+				<p class="lead">Create your new {{$root.applicationData.siteName}} account</p>
+				<form ng-submit="signup()">
+					
+					<div class="row">
+						<div class="form-group-underline col-sm-6">
+							
+							<input ng-model="credentials.firstName" name="credentialsFirstName"/>
+							<label for="credentialsFirstName"><span>First Name</span></label>
+						</div>
+						<div class="form-group-underline col-sm-6">
+							
+							<input ng-model="credentials.lastName" name="credentialsLastName"/>
+							<label for="credentialsLastName"><span>Last Name</span></label>
+						</div>
+					</div>
+
+					<div class="form-group-underline">
+						
+						<input ng-model="credentials.username" name="credentialsEmail"type="email"/>
+						<label for="credentialsEmail"><span>Email Address</span></label>
+						
+					</div>
+
+					<div class="form-group-underline">
+						
+						<input ng-model="credentials.password" name="credentialsPassword"type="password" />
+						<label for="credentialsPassword"><span>Create a password</span></label>
+					</div>
+
+					<div class="form-group-underline">
+						
+						<input ng-model="credentials.confirmPassword" name="credentialsConfirmPassword"type="password" />
+						<label for="credentialsConfirmPassword"><span>Confirm your password</span></label>
+					</div>
+
+					<div class="wrapper-xs">
+						<div class="row">
+							<div class="col-sm-5">
+								<button class="btn btn-primary btn-block">
+									<span>Create account</span>
+									<!-- <i class="fa fa-angle-right"></i> -->
+								</button>
+							</div>
+							<div class="col-sm-5 col-sm-offset-2">
+							<a class="btn btn-block btn-link" ui-sref="login.form">Already have an account?</a>
+							</div>
+						</div>
+					</form>
+				</div>
+
+			</div>
+
+		</div>
+	</div>

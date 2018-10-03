@@ -1,0 +1,24 @@
+<div>
+<div class="filter-block" ng-class="{expanded:isExpanded()}" ng-if="filterItems.length">
+
+<!-- <pre>{{filterItems | json}}</pre> -->
+	<div class="filter-block-title" ng-click="clicked()" >
+		<i class="fa fa-fw fa-angle-right pull-right"  ng-class="{'fa-rotate-90':isExpanded()}"></i>
+		<span>{{ title }}</span>
+		<div class="small brand-primary" style="padding-top: 5px;" ng-show="hasFilters()">{{getTitle()}}</div>
+	</div>
+	 <!--  -->
+	<div class="filter-block-options">
+		<!-- <a class="filter-block-option" ng-click="setFilter(null)" ng-show="hasFilters()">All</a> -->
+		<!--  -->
+		<a class="filter-block-option" ng-show="hasFilters()" ng-click="toggleFilter(); settings.expanded = false;">
+			<span>Any {{title}}</span>
+		</a>
+		<a class="filter-block-option" ng-click="toggleFilter(filterItem)" ng-class="{active:isActiveFilter(filterItem), inactive:!isActiveFilter(filterItem) && hasFilters()}" ng-repeat="filterItem in filterItems track by filterItem._id">
+			<!-- <i class="fa fa-fw fa-times pull-right"></i> -->
+			<span>{{filterItem.title}}</span>
+		</a>
+	</div>
+	
+</div>
+</div>

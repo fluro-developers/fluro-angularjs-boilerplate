@@ -1,0 +1,46 @@
+<div>
+
+	<div ng-switch="settings.state">
+		<div ng-switch-default>
+
+			<div class="btn btn-default btn-file btn-sm btn-block">
+				<span>Upload photo</span>
+				<!-- <i class="fa fa-upload" aria-hidden="true"></i> -->
+				<input accept="image/jpeg,image/png,image/gif" id="file" type="file" name="file">
+			</div>
+
+
+
+			<!-- <a class="btn btn-default btn-sm" ng-click="settings.state = 'form'">
+				<span>Upload photo</span>
+				<i class="fa fa-upload"></i>
+			</a> -->
+		</div>
+		<!-- <div ng-switch-when="form">
+			<label>Select image</label>
+			<input type="file" class="form-control" id="file" name="file"/>
+		</div> -->
+
+		<div ng-switch-when="processing">
+			<i class="fa fa-fw fa-spinner fa-spin"></i> Uploading
+		</div>
+
+		<div ng-switch-when="complete" class="brand-success">
+			<i class="fa fa-fw fa-check"></i> Photo was updated successfully
+		</div>
+
+		<div ng-switch-when="error" class="brand-warning">
+		<div>
+			<i class="fa fa-fw fa-warning"></i> {{settings.errorMessage}}
+			</div>
+
+			<a class="btn btn-default btn-sm" ng-click="settings.state = 'form'">
+				<span>Back</span>
+			</a>
+		</div>
+	</div>
+
+	
+	
+</div>
+

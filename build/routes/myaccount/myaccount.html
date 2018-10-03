@@ -1,0 +1,302 @@
+<div >
+	<div class="wrapper bg-white">
+		<div class="container">
+			<div class="text-wrap text-center text-sm-left">
+				<div class="row">
+					<div class="col-xs-6 col-xs-offset-3  col-sm-2 col-sm-offset-0 stacked-xs">
+						<div class="avatar">
+							<img preload-image aspect="100" ng-src="{{$root.asset.avatarUrl($root.user.persona, 'persona', {w:80, h:80, cb:$root.avatarCache.buster})}}">
+						</div>
+					</div>
+					<div class="col-xs-12 col-sm-10">
+
+						<h3 class="title">{{$root.user.firstName}} {{$root.user.lastName}}</h3>
+						<h5 class="text-muted" ng-show="$root.user.email">{{$root.user.email}}</h5>
+						<h5 class="text-muted" ng-hide="$root.user.email">{{$root.user.username}}</h5>
+
+
+
+						<div style="max-width: 400px; display:inline-block;">
+							<persona-image-replace-form ng-model="$root.user.persona" ng-cache="$root.avatarCache.buster"></persona-image-replace-form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<!-- <pre>{{purchases | json}}</pre> -->
+	<!--  -->
+	<div class="btn-tabs border-top" ng-if="!$root.applicationData.disable.comments || !$root.applicationData.disable.notes">
+		<div class="row row-flex">
+			<div class="col-xs-12">
+				<a class="btn-tab" ng-class="{active:settings.activeTab == 'ownedPurchases'}" ng-click="settings.activeTab = 'ownedPurchases'">
+					<span>{{ownedPurchases.length}}</span>
+					<span>{{'Product' | reword}}<span ng-show="ownedPurchases.length != 1">s</span></span>
+				</a>
+			</div>
+
+			<div class="col-xs-12">
+				<a class="btn-tab" ng-class="{active:settings.activeTab == 'licensedPurchases'}" ng-click="settings.activeTab = 'licensedPurchases'">
+					<span>{{licensedPurchases.length}}</span>
+					<span>{{'License' | reword}}<span ng-show="licensedPurchases.length != 1">s</span></span>
+				</a>
+			</div>
+			
+			
+			<!--  -->
+			<div  class="col-xs-12" ng-if="!$root.applicationData.disable.comments">
+				<a class="btn-tab" ng-class="{active:settings.activeTab == 'comments'}" ng-click="settings.activeTab = 'comments'">
+					<span>{{comments.length}}</span>
+					<span>{{'Comment' | reword}}<span ng-show="comments.length != 1">s</span></span>
+				</a>
+			</div>
+			<!--  -->
+			<div  class="col-xs-12" ng-if="!$root.applicationData.disable.notes">
+				<a class="btn-tab" ng-class="{active:settings.activeTab == 'notes'}" ng-click="settings.activeTab = 'notes'">
+					<span>{{notes.length}}</span>
+					<span>{{'Note' | reword}}<span ng-show="notes.length != 1">s</span></span>
+				</a>
+			</div>
+		</div>
+	</div>
+
+	<div ng-switch="settings.activeTab">
+		<div ng-switch-when="notes" class="my-comment-list">
+			<a ui-sref="{{getParentSref(note.parent)}}" class="my-comment-list-item" ng-repeat="note in uniqueNotes track by note._id">
+				<div class="text-wrap">
+					<strong>{{note.parent.title}}</strong> <span class="small text-muted"> {{note.created | formatDate:'g:ia -j M Y'}}</span>
+				</div>
+			</a>
+		</div>
+		<div ng-switch-when="comments" class="my-comment-list">
+
+			<a ui-sref="{{getParentSref(comment.parent)}}" class="my-comment-list-item" ng-repeat="comment in uniqueComments track by comment._id">
+				<div class="text-wrap">
+					<strong>{{comment.parent.title}}</strong> <span class="small text-muted"> {{comment.created | formatDate:'g:ia -j M Y'}}</span>
+				</div>
+			</a>
+		</div>
+
+
+		<div ng-switch-when="licensedPurchases" class="my-comment-list">
+
+			<div class="my-comment-list-item" ng-repeat="purchase in licensedPurchases track by purchase._id">
+				<div class="text-wrap">
+					<strong>{{purchase.title}}</strong> licensed to you from {{purchase.grantedBy}}
+				</div>
+			</div>
+		</div>
+
+
+		
+		<div ng-switch-default>
+			<div class="accordion" ng-class="{expanded:expanded.purchase == purchase, 'cancelled':purchase.status == 'cancelled'}" ng-repeat="purchase in ownedPurchases track by purchase._id">
+				<div class="accordion-title" ng-click="toggleExpanded('purchase', purchase)">
+					<div class="container-fluid">
+						<div class="text-wrap">
+							<h5 class="title">
+								<i class="fa fa-angle-right pull-right" ng-class="{'fa-rotate-90':expanded.purchase == purchase}"></i>
+								<span><span ng-if="purchase.amount">${{purchase.product.amount / 100 }}/{{purchase.product.frequency[0]}} </span> {{purchase.product.title}}</span>
+							</h5>
+							<div style="margin-top:5px" class="small">
+								<!-- <span ng-if="purchase.grantedBy">
+									Licensed to <strong>{{purchase.grantedBy}}</strong>. 
+								</span> -->
+								<!-- <div ng-if="!purchase.grantedBy"> -->
+								<span ng-if="purchase.expires">
+									<span ng-if="purchase.renew">Next payment</span><span ng-if="!purchase.renew">Expires</span> <span>{{purchase.expiryDate | formatDate:'j M Y'}} <span class="text-muted">({{purchase.expiryDate | timeago}})</span></span>
+								</span>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="accordion-body" ng-if="expanded.purchase == purchase">
+					<div class="container" ng-switch="purchase.status">
+						<div class="text-wrap" ng-switch-when="cancelled">
+							<em class="small">This purchase has been cancelled and will expire {{purchase.expiryDate | formatDate:'g:ia l j M Y'}}</em>
+						</div>
+						<div class="text-wrap" ng-switch-default>
+
+							
+							<div ng-if="purchase.owned">
+								<div ng-if="purchase.limit > 1">
+
+
+									<h6>Licensed to {{licensesUsed(purchase)}} of {{purchase.limit-1}}</h6>
+									<p class="help-block">Manage your license invitations below</p>
+
+									<div class="panel panel-default">
+										<div class="table-responsive">
+											<table class="table">
+												<tbody>
+													<tr ng-repeat="license in purchase.managedLicense track by license._id">
+														<td>{{license.firstName}}</td>
+														<td>{{license.lastName}}</td>
+														<td><em class="text-muted">{{license.username}}</em></td>
+														<td></td>
+													</tr>
+
+												</tbody>
+											</table>
+										</div>
+									</div>
+
+									<div ng-if="licensesAvailable(purchase)">
+										<h6>Invite a new user</h6>
+										<p class="help-block">To invite a new user add the details below and press 'invite'</p>
+										<div class="panel panel-default">
+											<div class="panel-body" >
+
+												<div class="row">
+													<div class="form-group col-xs-12 col-sm-6">
+														<label>First Name</label>
+														<input class="form-control small" ng-model="_proposedLicense.firstName" placeholder="First Name">
+													</div>
+													<div class="form-group col-xs-12 col-sm-6">
+														<label>Last Name</label>
+														<input class="form-control small" ng-model="_proposedLicense.lastName" placeholder="Last Name">
+													</div>
+													<div class="form-group col-xs-12">
+														<label>Email Address</label>
+														<input type="email" class="form-control small" ng-model="_proposedLicense.email" placeholder="Email Address">
+													</div>
+
+													<div class="form-group col-xs-12">
+														<a class="btn btn-primary" ng-disabled="_proposedLicense.processing" ng-click="sendInvite(purchase)">
+															<span>Invite</span>
+															<i class="fa" ng-class="{'fa-spinner fa-spin':_proposedLicense.processing, 'fa-paper-plane':!_proposedLicense.processing}"></i>
+														</a>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+
+
+								</div>
+
+								<div ng-if="purchase.method" ng-controller="PaymentMethodReplaceController">
+
+									<h6>Payment Method</h6>
+									<div class="panel panel-default">
+										<div class="panel-body" ng-switch="settings.state">
+											<div ng-switch-default>
+												<p>
+													{{purchase.method.title}}
+												</p>
+												<a class="btn btn-primary btn-sm" ng-click="settings.state = 'replace'">
+													<span>Change / Update</span>
+													<i class="fa fa-pencil-square-o"></i>
+												</a>
+
+											</div>
+
+											<div class="text-center" ng-switch-when="processing">
+												<i class="fa fa-spinner fa-spin fa-2x"></i>
+												<div>Processing</div>
+											</div>
+
+											<div ng-switch-when="error">
+												<h6>Error replacing payment method</h6>
+												<pre>{{settings.errorMessage | json}}</pre>
+												<a class="btn btn-primary" ng-click="settings.state = 'replace'">
+													<span>Back</span>
+												</a>
+											</div>
+
+											<div ng-switch-when="replace">
+												<p class="help-block">Update your payment details below</p>
+												<div class="form-group">
+													<label>Name on Card *</label>
+													<input placeholder="Card Number eg. (Kevin Durant)"  class="form-control" ng-model="settings.addCard.name"/>
+												</div>
+												<div class="form-group">
+													<label>Card Number *</label>
+													<input placeholder="Card Number eg. (0000-0000-0000-0000)"  class="form-control" ng-model="settings.addCard.number"/>
+												</div>
+												<div class="row">
+													<div class="form-group col-xs-6 col-sm-4">
+														<label>Exp Month  *<em class="small text-muted">(MM)</em></label>
+														<input placeholder="MM"  class="form-control" ng-model="settings.addCard.exp_month"/>
+													</div>
+													<div class="form-group col-xs-6 col-sm-4">
+														<label>Exp Year  *<em class="small text-muted">(YYYY)</em></label>
+														<input placeholder="YYYY"  class="form-control" ng-model="settings.addCard.exp_year"/>
+													</div>
+													<div class="form-group col-xs-6 col-sm-4">
+														<label>CVC *</label>
+														<input placeholder="CVC"  class="form-control" ng-model="settings.addCard.cvc"/>
+													</div>
+												</div>
+												<div ng-if="hasErrors()" class="alert alert-warning">
+													<label>Please correct the following errors before continuing</label>
+													<div ng-repeat="error in errors"><i class="fa fa-exclamation"></i> {{error}}</div>
+												</div>
+												<div class="row">
+													<div class="col-sm-6">
+														<a class="btn btn-primary" ng-disabled="invalid" ng-click="replaceWithNewCard(purchase, settings.addCard)">
+															<span>Update Card</span>
+															<i class="fa fa-angle-right"></i>
+														</a>
+													</div>
+													<div class="col-sm-6 text-sm-right">
+														<a class="btn btn-default" ng-click="settings.state = null">
+															<span>Cancel</span>
+														</a>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+
+								</div>
+
+								<div ng-if="purchase.transactions.length" >
+									<h6>Payment History</h6>
+									<div class="panel panel-default">
+										<table class="table table-striped">
+											<thead>
+												<tr>
+													<td>Transaction ID</td>
+													<td>Date</td>
+													<td>Amount</td>
+													<td>Currency</td>
+												</tr>
+											</thead>
+											<tbody>
+												<tr ng-repeat="transaction in purchase.transactions track by transaction._id">
+													<td>{{transaction._id}}</td>
+													<td>{{transaction.created | formatDate:'j M Y'}}</td>
+													<td>{{transaction.amount / 100 | currency}}</td>
+													<td class="text-uppercase">{{transaction.currency}}</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+
+
+
+								<!-- <pre>{{purchase | json}}</pre> -->
+								<div ng-if="purchase.expires" class="border-top" style="padding-top: 20px;">
+									<div ng-show="purchase.mode == 'cancel'">
+										<p class="help-block">Are you sure you want to cancel {{purchase.title}}?</p>
+										<a class="btn btn-default btn-sm" ng-click="purchase.mode = null">No</a> 
+										<a class="btn btn-danger btn-sm" ng-click="cancelSubscription(purchase)">Yes, Confirm Cancel</a> 
+
+									</div>
+									<div ng-hide="purchase.mode == 'cancel'">
+										<a class="btn btn-danger btn-sm" ng-click="purchase.mode = 'cancel'">Cancel '{{purchase.title}}'</a>
+									</div>
+								</div>
+
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

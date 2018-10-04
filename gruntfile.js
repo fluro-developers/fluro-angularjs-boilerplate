@@ -41,7 +41,7 @@ module.exports = function(grunt) {
                     'build/routes/**/*.html',
                     //'build/html/**/*.html',
                 ],
-                tasks: ['ngtemplates'],
+                tasks: ['ngtemplates:components', 'ngtemplates:routes'],
             },
             js: {
                 files: [
@@ -61,11 +61,32 @@ module.exports = function(grunt) {
         },
 
         ngtemplates: {
-            fluro: {
+            components:{
                 cwd: './build/components',
                 src: '**/*.html',
-                dest: 'app/js/templates.js',
+                dest: 'app/js/templates.components.js',
                 options: {
+                    module:'fluro',
+                    //usemin:'/js/templates.min.js',
+                    htmlmin: {
+                        collapseBooleanAttributes: true,
+                        collapseWhitespace: true,
+                        removeAttributeQuotes: true,
+                        removeComments: true, // Only if you don't use comment directives! 
+                        removeEmptyAttributes: true,
+                        removeRedundantAttributes: true,
+                        removeScriptTypeAttributes: true,
+                        removeStyleLinkTypeAttributes: true
+                    }
+                }
+            },
+            routes:{
+                cwd: './build/routes',
+                src: '**/*.html',
+                dest: 'app/js/templates.routes.js',
+                options: {
+                    module:'fluro',
+                    prefix: 'routes/',
                     //usemin:'/js/templates.min.js',
                     htmlmin: {
                         collapseBooleanAttributes: true,

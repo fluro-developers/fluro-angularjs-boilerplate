@@ -23,9 +23,9 @@
     "fluro.access": "*",
     "fluro.validate": "*",
     "fluro-interactions": "fluro.interactions#*",
-    "angular-bootstrap": "^2.4.0",
     "font-awesome": "^4.7.0",
-    "angulartics-google-analytics": "^0.4.0"
+    "angulartics-google-analytics": "^0.4.0",
+    "angular-bootstrap": "^2.5.0"
   },
   "resolutions": {
     "angular": "^1.6.4",

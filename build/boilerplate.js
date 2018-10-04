@@ -40,7 +40,13 @@ function getMetaKey(stringKey) {
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
-boilerplate.config(function($stateProvider, $compileProvider, $httpProvider, FluroProvider, $urlRouterProvider, $locationProvider, $analyticsProvider) {
+boilerplate.config(function($stateProvider, $animateProvider, $compileProvider, $httpProvider, FluroProvider, $urlRouterProvider, $locationProvider, $analyticsProvider) {
+
+
+     //Add ng-animate-disable feature
+    $animateProvider.classNameFilter(/^(?:(?!ng-animate-disabled).)*$/);
+
+
 
     // make sure include provided client app tracker and fluro tracker
     $analyticsProvider.settings.ga.additionalAccountNames = ['fluro'];
@@ -106,6 +112,9 @@ boilerplate.config(function($stateProvider, $compileProvider, $httpProvider, Flu
 /////////////////////////////////////////////////////////////////////
 
 boilerplate.run(function($rootScope, $sessionStorage, PurchaseService, Asset, FluroTokenService, FluroSEOService, FluroContent, FluroBreadcrumbService, FluroScrollService, $location, $timeout, $state, $analytics) {
+
+
+   
 
 
     //Add all of the services we might need to access via the DOM
@@ -187,10 +196,10 @@ boilerplate.run(function($rootScope, $sessionStorage, PurchaseService, Asset, Fl
         FluroTokenService.logout();
 
         //Hide the sidebar
-        $rootScope.sidebarExpanded = false;
+        $rootScope.menuExpanded = false;
 
         //Reload and go to home state
-        $state.go('home');
+        $state.go(DEFAULT_HOME_STATE);
     }
 
     //////////////////////////////////////////////////////////////////
@@ -211,7 +220,24 @@ boilerplate.run(function($rootScope, $sessionStorage, PurchaseService, Asset, Fl
     $rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams, error) {
 
         //Close the sidebar
-        $rootScope.sidebarExpanded = false;
+        $rootScope.menuExpanded = false;
+
+
+
+        ///////////////////////////////////////////////
+
+        //If a redirect has been set on the state
+        if (toState.redirectTo) {
+
+            //prevent the default
+            event.preventDefault();
+            //Navigate to the redirect
+            $state.go(toState.redirectTo, toParams);
+            return;
+        }
+
+        
+
 
         ///////////////////////////////////////////////
 
@@ -232,7 +258,7 @@ boilerplate.run(function($rootScope, $sessionStorage, PurchaseService, Asset, Fl
                     event.preventDefault();
 
                     //Go to home page instead
-                    $state.go('home');
+                    $state.go(DEFAULT_HOME_STATE);
                     return;
                 }
             }
@@ -258,6 +284,8 @@ boilerplate.run(function($rootScope, $sessionStorage, PurchaseService, Asset, Fl
         }
     });
 
+
+
     //////////////////////////////////////////////////////////////////
 
     $rootScope.$on('$stateChangeError', function(event, toState, toParams, fromState, fromParams, error) {
@@ -270,6 +298,8 @@ boilerplate.run(function($rootScope, $sessionStorage, PurchaseService, Asset, Fl
     $rootScope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams, error) {
         //Update the state name so we can use it for CSS classes in the DOM
         $rootScope.currentState = toState.name;
+
+        $rootScope.bodyClass = _.kebabCase('route-' + toState.name);
     });
 
     //////////////////////////////////////////////////////////////////

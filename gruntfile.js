@@ -158,13 +158,9 @@ module.exports = function(grunt) {
                         '*.{ico,txt}',
                         '.htaccess',
                         'images/**',
+                        'webfonts/**',
                     ],
                     dest: 'dist'
-                }, {
-                    expand: true,
-                    cwd: 'app/bower_components/font-awesome/fonts',
-                    src: ['*.*'],
-                    dest: 'dist/fonts'
                 }, {
                     expand: true,
                     cwd: 'build/scss',

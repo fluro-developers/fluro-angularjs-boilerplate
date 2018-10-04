@@ -1,10 +1,42 @@
+//Constants
+//This is where you can change the default settings in the boilerplate
+var DEFAULT_HOME_STATE = 'app.home';
+
+//////////////////////////////////////////////////
+
+/**
+ * Addin your own dependencies in here
+ */
 var app = angular.module('fluro', [
-    'fluro.boilerplate', // BoilerplateConfiguration.js
-    // add your app specific dependencies here
+    'fluro.boilerplate', // build/boilerplate.js
+    //anything else you want to add
 ]);
 
+//////////////////////////////////////////////////
+//////////////////////////////////////////////////
+//////////////////////////////////////////////////
+//////////////////////////////////////////////////
+
+/**
+ * Write your own application logic in here
+ */
+//Custom App Code
+//Your application specific code goes here
+
+app.run(function($rootScope, $uibModalStack, NotificationService) {
 
 
+	$rootScope.notifications = NotificationService;
+
+
+    //Listen for when the user starts navigating to a new page
+    $rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams, error) {
+        //Close any modals that are open
+        $uibModalStack.dismissAll();
+
+    })
+
+});
 var boilerplate = angular.module('fluro.boilerplate', [
     'ngAnimate',
     'ngResource',
@@ -47,7 +79,13 @@ function getMetaKey(stringKey) {
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
-boilerplate.config(function($stateProvider, $compileProvider, $httpProvider, FluroProvider, $urlRouterProvider, $locationProvider, $analyticsProvider) {
+boilerplate.config(function($stateProvider, $animateProvider, $compileProvider, $httpProvider, FluroProvider, $urlRouterProvider, $locationProvider, $analyticsProvider) {
+
+
+     //Add ng-animate-disable feature
+    $animateProvider.classNameFilter(/^(?:(?!ng-animate-disabled).)*$/);
+
+
 
     // make sure include provided client app tracker and fluro tracker
     $analyticsProvider.settings.ga.additionalAccountNames = ['fluro'];
@@ -113,6 +151,9 @@ boilerplate.config(function($stateProvider, $compileProvider, $httpProvider, Flu
 /////////////////////////////////////////////////////////////////////
 
 boilerplate.run(function($rootScope, $sessionStorage, PurchaseService, Asset, FluroTokenService, FluroSEOService, FluroContent, FluroBreadcrumbService, FluroScrollService, $location, $timeout, $state, $analytics) {
+
+
+   
 
 
     //Add all of the services we might need to access via the DOM
@@ -194,10 +235,10 @@ boilerplate.run(function($rootScope, $sessionStorage, PurchaseService, Asset, Fl
         FluroTokenService.logout();
 
         //Hide the sidebar
-        $rootScope.sidebarExpanded = false;
+        $rootScope.menuExpanded = false;
 
         //Reload and go to home state
-        $state.go('home');
+        $state.go(DEFAULT_HOME_STATE);
     }
 
     //////////////////////////////////////////////////////////////////
@@ -218,7 +259,24 @@ boilerplate.run(function($rootScope, $sessionStorage, PurchaseService, Asset, Fl
     $rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams, error) {
 
         //Close the sidebar
-        $rootScope.sidebarExpanded = false;
+        $rootScope.menuExpanded = false;
+
+
+
+        ///////////////////////////////////////////////
+
+        //If a redirect has been set on the state
+        if (toState.redirectTo) {
+
+            //prevent the default
+            event.preventDefault();
+            //Navigate to the redirect
+            $state.go(toState.redirectTo, toParams);
+            return;
+        }
+
+        
+
 
         ///////////////////////////////////////////////
 
@@ -239,7 +297,7 @@ boilerplate.run(function($rootScope, $sessionStorage, PurchaseService, Asset, Fl
                     event.preventDefault();
 
                     //Go to home page instead
-                    $state.go('home');
+                    $state.go(DEFAULT_HOME_STATE);
                     return;
                 }
             }
@@ -265,6 +323,8 @@ boilerplate.run(function($rootScope, $sessionStorage, PurchaseService, Asset, Fl
         }
     });
 
+
+
     //////////////////////////////////////////////////////////////////
 
     $rootScope.$on('$stateChangeError', function(event, toState, toParams, fromState, fromParams, error) {
@@ -277,6 +337,8 @@ boilerplate.run(function($rootScope, $sessionStorage, PurchaseService, Asset, Fl
     $rootScope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams, error) {
         //Update the state name so we can use it for CSS classes in the DOM
         $rootScope.currentState = toState.name;
+
+        $rootScope.bodyClass = _.kebabCase('route-' + toState.name);
     });
 
     //////////////////////////////////////////////////////////////////
@@ -289,97 +351,35 @@ boilerplate.run(function($rootScope, $sessionStorage, PurchaseService, Asset, Fl
 
 app.config(function($stateProvider) {
 
-    ///////////////////////////////////////////
-    ///////////////////////////////////////////
-    ///////////////////////////////////////////
+    
 
-    // !important not to change 'home' as the state name
-    $stateProvider.state('home', {
+    $stateProvider.state('app', {
         url: '/',
-        templateUrl: 'routes/home/home.html',
+        templateUrl: 'routes/app/app.html',
+        controller: AppRouteController,
+        data: AppRouteController.data,
+        resolve: AppRouteController.resolve,
+        redirectTo: 'app.home',
+    });
+
+
+
+    $stateProvider.state('app.home', {
+        url: '',
+        templateUrl: 'routes/app.home/home.html',
         controller: HomeController,
         data: HomeController.data,
         resolve: HomeController.resolve
     });
 
-    ///////////////////////////////////////////
 
-    $stateProvider.state('search', {
-        url: '/search',
-        templateUrl: 'routes/search/search.html',
-        controller: SearchPageController,
-        data: SearchPageController.data,
-        resolve: SearchPageController.resolve
-    });
-
-    ///////////////////////////////////////////
-
-    $stateProvider.state('article', {
-        url: '/article/:id',
-        templateUrl: 'routes/article/article.html',
-        controller: ArticleViewController,
-        data: ArticleViewController.data,
-        resolve: ArticleViewController.resolve
-    });
-
-    ///////////////////////////////////////////
-
-    $stateProvider.state('myaccount', {
-        url: '/my-account',
-        templateUrl: 'routes/myaccount/myaccount.html',
-        controller: MyAccountController,
-        data: MyAccountController.data,
-        resolve: MyAccountController.resolve
-    });
-
-    ///////////////////////////////////////////
-
-    $stateProvider.state('login', {
-        url: '/login?returnTo&package',
-        abstract: true,
-        template: '<div ui-view></div>',
-        controller: LoginPageController,
-    });
-
-    $stateProvider.state('login.form', {
-        url: '',
-        templateUrl: 'routes/login/login.form.html',
-        data: LoginPageController.data,
-        resolve: LoginPageController.resolve
-    });
-
-    $stateProvider.state('login.forgot', {
-        url: '/forgot',
-        templateUrl: 'routes/login.forgot/forgot.html',
-        data: {
-            denyAuthenticated: true,
-        },
-        resolve: {
-            seo: function(FluroSEOService) {
-                FluroSEOService.pageTitle = 'Forgot Password';
-                return true;
-            },
-        }
-    });
-
-    ///////////////////////////////////////////
-
-    $stateProvider.state('signup', {
-        url: '/signup?returnTo',
-        templateUrl: 'routes/signup/signup.html',
-        controller: SignupPageController,
-        data: SignupPageController.data,
-        resolve: SignupPageController.resolve
-    });
-
-    ///////////////////////////////////////////
-
-    $stateProvider.state('reset', {
-        url: '/reset-password?token',
-        templateUrl: 'routes/reset/reset.html',
-        controller: ResetPasswordPageController,
-        resolve: ResetPasswordPageController.resolve
-    });
+    // $stateProvider.state('app.message', {
+    //     url: 'message/:id',
+    //     templateUrl: 'routes/app.message/message.html',
+    //     controller: MessageRouteController,
+    //     data: MessageRouteController.data,
+    //     resolve: MessageRouteController.resolve
+    // });
 
     ///////////////////////////////////////////
 
@@ -2310,6 +2310,40 @@ app.service('FluroBreadcrumbService', function($rootScope, $timeout, $state) {
 
     return controller;
 
+});
+app.directive('dropover', function($document, $timeout) {
+
+    return {
+        restrict: 'A',
+        scope:true,
+        /**
+        scope: {
+            dropover: '=dropoverModel',
+        },
+        /**/
+        link: function($scope, $element) {
+
+            if(!$scope.dropover) {
+                $scope.dropover = {}
+            }
+
+            $document.click(function(event) {
+
+                // console.log('Close dropover');
+
+                var isChild = $element.has(event.target).length > 0; //$($element).has(event.target).length > 0;
+                var isSelf = $element[0] == event.target;
+                var isInside = isChild || isSelf;
+
+
+                $timeout(function() {
+                    $scope.dropover.open = isInside;
+                })
+
+
+            })
+        },
+    };
 });
 app.directive('filterBlock', function() {
     return {
@@ -8985,7 +9019,25 @@ app.controller('UserLoginController', function($scope, $http, FluroTokenService,
         }, function(res) {
             $scope.status = 'ready';
             console.log('FAILED', res);
-            NotificationService.message(String(res.data), 'danger')
+
+            if(res.status == -1) {
+
+                var appDevelopmentURL = getMetaKey('app_dev_url');
+
+                ////////////////////////////////////////////
+
+                if(appDevelopmentURL && appDevelopmentURL.length) {
+                    NotificationService.message('Update your trusted hosts for (' + appDevelopmentURL + ') to allow from this origin', 'danger')
+                } else {
+                    NotificationService.message('Network Security Error', 'danger')
+                }
+
+                ////////////////////////////////////////////
+
+
+            } else {
+                NotificationService.message(String(res.data), 'danger')
+            }
         })
     }
    
@@ -9499,47 +9551,404 @@ app.filter('timeago', function(){
   };
 });
 
-ArticleViewController.resolve = {
-    item: function($stateParams, FluroContent) {
-        return FluroContent.resource('article/' + $stateParams.id).get({}).$promise;
-    },
-    seo: function(FluroSEOService, Asset, item) {
-
-        //Set the page title as the title of the article
-        FluroSEOService.pageTitle = item.title;
-
-        //Get variables from your article item
-        var articleImage = _.get(item, 'data.publicData.image');
-        var articleDescription = _.get(item, 'data.publicData.shortDescription');
-
-        FluroSEOService.imageURL = Asset.imageUrl(articleImage, 640);
-        FluroSEOService.description = articleDescription;
-        return true;
-    },
-};
-
-ArticleViewController.data = {
-    requireLogin: true,
-}
-
-app.controller('ArticleViewController', ArticleViewController);
-
-function ArticleViewController($scope) {
-
-}
-
-app.controller('ViewContentController', function($scope, item, definition) {
+app.service('CheckinEventService', function ($q, $rootScope, FluroContentRetrieval) {
 
 
-	$scope.definition = definition;
-	$scope.item = item;
+	var service = {};
 
+	/////////////////////////////////////////
+	
+
+	var request;
+
+	service.reload = function(force) {
+
+		if(request && !force) {
+			return request;
+		}
+
+		/////////////////////////////////////////
+
+		//Get start of today
+        var thismorning = new Date();
+        thismorning.setHours(0,0,0,0);
+
+        // //Get end of today
+        var tonight = new Date();
+        tonight.setHours(23,59,0,0);
+
+        //Find all events that are running today
+        var queryDetails = {
+            "_type":"event",
+            "startDate": {
+                "$lte": "date('"+tonight+"')"
+            },
+            "endDate": {
+                "$gte": "date('"+thismorning+"')"
+            },
+        }
+
+
+		/////////////////////////////////////////
+
+		//Set status to processing
+		service.processing = true;
+
+		var requestOptions = {
+			noCache:true,
+		}
+
+		//Now we make the request to the server
+		request = FluroContentRetrieval.query(queryDetails, null, null, requestOptions, null);
+
+		//Listen for the promise to resolve
+        request.then(function(res) {
+
+        	//Update the status
+        	service.processing = false;
+
+        	//Update the event list
+            service.events = res;
+           
+           	console.log('EventService.reload complete', res);
+
+           	//Kill off the request so we dont load more than we need to
+           	request = null;
+
+        }, function(err) {
+
+        	//Update the status
+        	service.processing = false;
+            console.log('EventService.reload error', err);
+
+            //Kill off the request so we dont load more than we need to
+            request = null;
+        });
+		
+
+	}
+
+	/////////////////////////////////////////
+
+	service.eventRequiresPin = function(event) {
+		//check if the app needs a pin number
+        var appNeedsPin = _.get($rootScope, 'appData.requirePin');
+        //check if the event requires a pin number
+        var eventNeedsPin = _.get(event, 'checkinData.requirePin');
+        return (appNeedsPin || eventNeedsPin);
+	}
+
+
+	////////////////////////////////////////////////
+
+    controller.eventIsOpen = function(event) {
+
+        var now = new Date();
+
+        //Get the checkin times
+        var checkinTimes = service.getEventCheckinTimes(event);
+
+        //Check whether we are within the checkin time for this event
+        return ((now >= checkinTimes.startDate) && (now <= checkinTimes.endDate));
+    }
+
+	////////////////////////////////////////////////
+
+    service.getEventCheckinTimes = function(event) {
+
+        var startDate = new Date(event.startDate);
+        startDate.setSeconds(0, 0);
+
+        var endDate = new Date(event.endDate);
+        endDate.setSeconds(0, 0);
+
+        ///////////////////////////////////////////////////
+
+        if (startDate.getTime() == endDate.getTime()) {
+            //15 minutes
+            var defaultEventLength = 60 * 60000;
+            endDate = new Date(startDate.getTime() + defaultEventLength);
+        }
+
+        ///////////////////////////////////////////////////
+
+        //30 minutes by default
+        var checkinStartOffset = 90;
+        var checkinEndOffset = 90;
+
+        if (event.checkinData) {
+            if (event.checkinData.checkinStartOffset) {
+                checkinStartOffset = event.checkinData.checkinStartOffset;
+            }
+
+            if (event.checkinData.checkinEndOffset) {
+                checkinEndOffset = event.checkinData.checkinEndOffset;
+            }
+        }
+
+        ///////////////////////////////////////
+
+        //Change the minutes to milliseconds
+        checkinStartOffset = checkinStartOffset * 60000;
+        checkinEndOffset = checkinEndOffset * 60000;
+
+        //Get the dates with the offsets added
+        startDate = new Date(startDate.getTime() - checkinStartOffset);
+        endDate = new Date(endDate.getTime() + checkinEndOffset);
+
+        return {
+            startDate:startDate,
+            endDate:endDate,
+        };
+    }
+
+	/////////////////////////////////////////
+
+
+	return service;
 
 })
+app.service('IdleTimeoutService', function($interval, NotificationService) {
 
-////////////////////////////////////////////////////////
+    //Private variables
+    var interval;
+    var _defaultSecondsLeft = 60;
 
-//Add your resolves for this route
+    ///////////////////////////////////////////////////////////
+
+    var listeners = [];
+
+    ///////////////////////////////////////////////////////////
+
+    var service = {
+        seconds: _defaultSecondsLeft,
+    }
+
+    service.addListener = function(func) {
+        listeners.push(func);
+    }
+
+    service.removeListener = function(func) {
+        _.pull(listeners, func);
+    }
+
+    ///////////////////////////////////////////////////////////
+
+    function countdown() {
+
+        if (service.seconds <= 0) {
+            //Each function listening to the timer
+            _.each(listeners, function(listener) {
+
+                //Run the function
+                listener();
+            })
+
+            return;
+        }
+
+        if (service.seconds < 10) {
+            NotificationService.message('Restarting in ' + service.seconds, 'warning', 1000);
+        }
+
+        //take away one second
+        service.seconds--;
+
+        // console.log('Seconds left', service.seconds);
+    }
+
+    ///////////////////////////////////////////////////////////
+
+    service.start = function() {
+        if (interval) {
+            return;
+        }
+
+        interval = $interval(countdown, 1000);
+    }
+
+    ///////////////////////////////////////////////////////////
+
+    service.stop = function() {
+        if (interval) {
+            $interval.cancel(interval);
+            interval = null;
+        }
+    }
+
+    ///////////////////////////////////////////////////////////
+
+    service.reset = function() {
+        service.seconds = _defaultSecondsLeft;
+    }
+
+    ///////////////////////////////////////////////////////////
+
+    return service;
+});
+app.service('PrinterService', function($q, $rootScope, FluroContent) {
+
+
+    var service = {
+
+    };
+
+    /////////////////////////////////////////
+
+    var request;
+
+    service.reload = function(force) {
+
+        if (request && !force) {
+            return request;
+        }
+
+        /////////////////////////////////////////
+
+        //Set status to processing
+        service.processing = true;
+
+        request = FluroContent.endpoint('printer').query({
+            noCache: true
+        }).$promise;
+
+        /////////////////////////////////////////
+
+        //Listen for the promise to resolve
+        request.then(function(res) {
+
+            //Update the status
+            service.processing = false;
+
+            //Update the event list
+            service.printers = res;
+
+            console.log('PrinterService.reload complete', res);
+
+            //Kill off the request
+            request = null;
+
+        }, function(err) {
+
+            //Update the status
+            service.processing = false;
+            console.log('PrinterService.reload error', err);
+
+            //Kill off the request
+            request = null;
+        });
+    }
+
+    ////////////////////////////////////////////////////////
+
+
+    service.reprint = function(checkin) {
+
+        if(checkin.reprinting) {
+            return console.log('already reprinting');
+        }
+
+        if(!$localStorage.printStationID) {
+            return console.log('No local storage printer id has been set');
+        }
+
+        checkin.reprinting = true;
+
+        //////////////////////////////////
+
+        var promise = FluroContent.endpoint('checkin/reprint/' + checkin._id).save({
+            // printStationID:$localStorage.printStationID,
+        }).$promise;
+
+        //////////////////////////////////
+
+        console.log('Reprint request made')
+        promise.then(function(res) {
+            console.log('Reprint complete')
+            checkin.reprinting =false;
+        }, function(err) {
+            console.log('Reprint error', err)
+            checkin.reprinting =false;
+        })
+
+    }
+
+
+
+
+    /////////////////////////////////////////
+
+    return service;
+
+})
+app.service('StalkerService', function() {
+
+	var service = {
+		trackedEvents:[],
+		elapsed:0,
+	};
+
+	/////////////////////////////////////////
+
+	service.reset = function() {
+		service.trackedEvents = [];
+		service.elapsed = 0;
+	}
+
+	/////////////////////////////////////////
+
+	service.track = function(name, optionalData) {
+
+		var event = {
+			name:name,
+			date:new Date(),
+			duration:0,
+			elapsed:0,
+		}
+
+        /////////////////////////////////////////
+
+		//If there is already an event
+		if(service.trackedEvents.length) {
+
+			//Get the last event
+			var lastEvent = service.trackedEvents[service.trackedEvents.length-1];
+
+			if(lastEvent) {
+				//Get the datetime of the last event
+				var lastEventDate = moment(lastEvent.date);
+
+				//And now
+				var now = moment(event.date);
+
+				//Find the difference between now and the last event date
+	            var difference = now.diff(lastEventDate);
+
+	            //Store the duration and the elapsed time
+	            event.duration = difference;
+	            event.elapsed = lastEvent.elapsed + difference;
+	        }
+        }
+
+        /////////////////////////////////////////
+
+		if(optionalData) {
+			event.data = optionalData;
+		}
+
+		// console.log('STALKER', name, service.trackedEvents.length);
+		service.trackedEvents.push(event)
+	}
+
+	/////////////////////////////////////////
+	/////////////////////////////////////////
+
+
+	return service;
+
+
+});
+
 HomeController.resolve = {
     seo: function(FluroSEOService, Asset, $rootScope) {
         FluroSEOService.pageTitle = null;
@@ -9547,879 +9956,58 @@ HomeController.resolve = {
     },
 }
 
+////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////
-
-//Add any extra ui router settings
 HomeController.data = {
     // requireLogin: true,
 }
 
-////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
 
-function HomeController($scope) {
+function HomeController($scope, NotificationService) {
 
-	$scope.message = 'Welcome to the Fluro Angular boilerplate';
+
+    $scope.notify = function(message) {
+        NotificationService.message(message, 'warning', 1000);    
+
+    }
 }
+AppRouteController.resolve = {
+    session: function(FluroContent, $q) {
 
-LoginPageController.resolve = {
-    seo: function(FluroSEOService) {
-        FluroSEOService.pageTitle = 'Sign in';
-        return true;
-    },
-}
+    	var deferred = $q.defer();
 
-LoginPageController.data = {
-    denyAuthenticated: true,
-}
+    	//////////////////////
 
-app.controller('LoginPageController', LoginPageController);
+        FluroContent.endpoint('session').get()
+        .$promise
+        .then(function(user) {
 
-function LoginPageController($scope, FluroBreadcrumbService,  $stateParams, $state, $http, Fluro, FluroContent, FluroTokenService) {
+        	//Resolve with the currently logged in user
+        	return deferred.resolve(user);
 
-
-    $scope.credentials = {}
-
-    //Object to store the current state of this page
-    $scope.settings = {};
-
-    //////////////////////////////////////
-
-
-    $scope.sendResetToken = function() {
-
-
-
-        $scope.settings.state = 'processing';
-
-        //Tell the server that when the user clicks the reset link
-        //it should take them to this url to retrieve the reset token
-
-
-        var resetDetails = {}
-        resetDetails.email = $scope.credentials.username;
-        resetDetails.redirect = '/reset-password';
-
-        //////////////////////////////////////
-
-        var request = FluroTokenService.sendResetPasswordRequest(resetDetails, {
-            application: true
-        });
-
-        function resetSuccess(res) {
-            // NotificationService.message('Reset token has been sent')
-            $scope.settings.state = 'complete';
-        }
-
-        function resetFailed(err) {
-
-            $scope.settings.errorMessage = err.data.error;
-            // NotificationService.message(err.data, 'danger')
-            $scope.settings.state = 'error';
-        }
-
-        //Make the request
-        request.then(resetSuccess, resetFailed);
-
-    }
-
-
-    //////////////////////////////////////
-
-    $scope.backToLogin = function() {
-        $scope.settings.state = null;
-        $state.go('login.form');
-    }
-    //////////////////////////////////////
-
-
-    $scope.login = function() {
-
-        if (!$scope.credentials.username || !$scope.credentials.username.length) {
-            return $scope.settings.error = 'Email Address is a required field'
-        }
-
-        if (!$scope.credentials.password || !$scope.credentials.password.length) {
-            return $scope.settings.error = 'Password is a required field'
-        }
-
-
-
-        //Set state to processing
-        $scope.settings.state = 'processing';
-        $scope.settings.error = null;
-
-        //////////////////////////////////////
-
-        //Sign in and authorise as a persona using this application
-        //This will mean the token returned combines the application's permissions and the application user's permissions
-        var request = FluroTokenService.login($scope.credentials, {
-            application: true
-        });
-
-        //////////////////////////////////////
-
-        //Login and authentication was successful
-        function loginSuccess(res) {
-
-
-            $scope.settings.state = 'complete';
-
-            if($stateParams.package)  {
-                $state.go('package', {slug:$stateParams.package});
-                return;
-            }
-
-            if($stateParams.returnTo) {
-
-                //Find out how long the breadcrumb trail is
-                var trailLength =  FluroBreadcrumbService.trail.length;
-                //Get the page before this login form
-                var lastPage = FluroBreadcrumbService.trail[trailLength-2];
-
-                return FluroBreadcrumbService.backTo(lastPage);
-            }
-
-            //go straight to the watch page
-            $state.go('search');
-        }
-
-        //////////////////////////////////////
-
-        //Login failed
-        function loginFailed(err) {
-            $scope.settings.state = 'ready';
-            console.log('FAILED', err);
-            $scope.settings.error = err.data;
-        }
-
-        //////////////////////////////////////
-
-        //Listen for the promise result
-        request.then(loginSuccess, loginFailed);
-
-    }
-
-
-}
-
-MyAccountController.resolve = {
-    seo: function(FluroSEOService, $rootScope) {
-        FluroSEOService.pageTitle = $rootScope.user.firstName;
-        return true;
-    },
-    purchases: function(FluroContent) {
-        return FluroContent.endpoint('my/purchases', false, true).query({
-            populateLicenses: true,
-        }).$promise;
-    },
-    posts: function(FluroContentRetrieval, $rootScope) {
-
-        if (!$rootScope.user || !$rootScope.user.persona) {
-            return [];
-        }
-
-        //////////////////////////////////////////////
-
-        var queryDetails = {
-            _type: "post",
-            definition: {
-                $in: ['comment', 'note'],
-            },
-            managedAuthor: $rootScope.user.persona,
-        }
-
-        var selectFields = 'title parent definition created';
-
-        /////////////////////////////////////////
-
-        //Request an update of all available events today
-        var promise = FluroContentRetrieval.query(queryDetails, null, null, {
-            noCache: true,
-            select: selectFields
-        }, null);
-
-        return promise;
-    },
-    paymentMethods: function($q, FluroContent, PurchaseService) {
-
-        //Find all payment methods for the user
-
-        //Defer the promise
-        var deferred = $q.defer();
-
-        //Check the application data for the payment gateway to use
-        var paymentGateway = PurchaseService.applicationPaymentGateway();
-
-        //If a gateway is set
-        if (paymentGateway) {
-            //Retrieve all cards for the current user for the specified payment gateway
-            return PurchaseService.retrievePaymentMethods(paymentGateway._id);
-        } else {
-            deferred.resolve([]);
-        }
-
-        //Return the promise;
-        return deferred.promise;
-    },
-}
-
-MyAccountController.data = {
-    requireLogin: true,
-},
-
-app.controller('MyAccountController', MyAccountController);
-
-function MyAccountController($scope, $rootScope, purchases, posts, FluroTokenService, paymentMethods, PurchaseService, FluroContent) {
-
-
-    ////////////////////////////////////////////////////
-
-    function updatePurchases(purchaseList) {
-
-
-        ////////////////////////////////////////////////////////
-
-        var cleaned = _.chain(purchaseList)
-        .map(function(purchase) {
-
-            if(purchase.purchaser) {
-                purchase.grantedBy = purchase.purchaser.name
-            }
-
-            if(purchase.managedPurchaser) {
-                purchase.grantedBy = purchase.managedPurchaser.title
-            }
-
-
-
-            var userPersona = $rootScope.user.persona;
-            var userID = $rootScope.user._id;
-
-            //////////////////////////////////////////////////
-
-            var managedPurchaser = purchase.managedPurchaser;
-            var purchaser = purchase.purchaser;
-
-            if(managedPurchaser && managedPurchaser._id) {
-                managedPurchaser = managedPurchaser._id;
-            }
-
-            if(purchaser && purchaser._id) {
-                purchaser = purchaser._id;
-            }
-
-
-            //////////////////////////////////////////////////
-            //////////////////////////////////////////////////
-
-            //Start by assuming the user owns this purchase
-            purchase.owned = true;
-
-            if(purchaser && purchaser != userID) {
-                purchase.owned = false;
-            }
-
-            if(managedPurchaser && (managedPurchaser != userPersona)) {
-                purchase.owned = false;
-            }
-
-            //////////////////////////////////////////////////
-
-            return purchase;
-
-        })
-        .value();
-
-        ////////////////////////////////////////////////////////
-
-        $scope.ownedPurchases = _.filter(cleaned, {owned:true});
-        $scope.licensedPurchases = _.filter(cleaned, {owned:false});
-        $scope.purchases = cleaned;
-
-
-    }
-
-    ////////////////////////////////////////////////////
-
-    //Add all the purchases in the list
-    updatePurchases(purchases);
-
-    ////////////////////////////////////////////////////
-    $scope.methods = paymentMethods;
-
-    $scope.expanded = {};
-
-    $scope.settings = {
-        activeTab:'purchases',
-        cacheBuster:1,
-    }
-
-    //////////////////////////////////////////////////////
-
-    if($scope.ownedPurchases.length == 1) {
-       $scope.expanded.purchase = $scope.ownedPurchases[0];
-    }
-    //////////////////////////////////////////////////////
-
-    var comments = [];
-    var notes = [];
-
-    _.each(posts, function(post) {
-        switch(post.definition) {
-            case 'vodComment':
-                comments.push(post);
-            break;
-            case 'vodNote':
-                notes.push(post);
-            break;
-        }
-    })
-
-    //////////////////////////////////////////////////////
-
-    $scope.getParentSref = function(parent) {
-        switch(parent.definition) {
-            case 'vodEvent':
-                return "stream({slug:'"+parent.slug+"'})";
-            break;
-            case'vodEpisode':
-                return "watchVideo({slug:'"+parent.slug+"'})";
-            break;
-        }
-    }
-
-    //////////////////////////////////////////////////////
-
-    $scope._proposedLicense = {};
-
-    $scope.sendInvite = function(purchase) {
-
-        $scope._proposedLicense.processing = true;
-
-        var details = angular.copy($scope._proposedLicense);
-        details.redirect = '/invited';
-        details.purchase = purchase._id;
-
-        var request = FluroTokenService.applicationRequest(details, '/invite');
-
-        request.then(function(res) {
-
-            //Immediately push in the license
-            purchase.managedLicense.push(res.data);
-
-            $scope._proposedLicense = {};
-
-            console.log('Invitation request made', res);
         }, function(err) {
-
-            $scope._proposedLicense.processing = false;
-
-            console.log('Invitation request failed', err);
-        });
-    }
-
-    //////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////
-
-    $scope.licensesUsed = function(purchase) {
-
-        var total = 0;
-
-        var licenses = purchase.license.length;
-        var managedLicenses = purchase.managedLicense.length;
-
-        //Licenses
-        total += licenses;
-        total += managedLicenses;
-
-        return total;
-
-    }
-
-
-    $scope.licensesAvailable = function(purchase) {
-
-        var total = purchase.limit-1;
-        var licensesUsed = $scope.licensesUsed(purchase);
-
-        return total - licensesUsed;
-
-    }
-
-    //////////////////////////////////////////////////////
-
-    $scope.comments = comments;
-
-    $scope.uniqueComments = _.chain(comments)
-    .uniqBy(function(comment) {
-        return comment.parent._id;
-    })
-    .orderBy(function(comment) {
-        var date = new Date(comment.created);
-        return date.getTime();
-    })
-    .value();
-
-    //////////////////////////////////////////////////////
-
-    $scope.notes = notes;
-    $scope.uniqueNotes = _.chain(notes)
-    .uniqBy(function(comment) {
-        return comment.parent._id;
-    })
-    .orderBy(function(comment) {
-        var date = new Date(comment.created);
-        return date.getTime();
-    })
-    .value();
-
-    //////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////
-
-    $scope.toggleExpanded = function(type, item) {
-
-        if($scope.ownedPurchases.length > 1) {
-            if($scope.expanded[type] == item) {
-                $scope.expanded[type] = null;
-            } else {
-                $scope.expanded[type] = item;
-            }
-        }
-    }
-
-    //////////////////////////////////////////////////////
-
-    $scope.cancelSubscription = function(purchase) {
-
-        console.log('Cancel')
-
-        function cancelSuccess(res) {
-            console.log('Subscription cancelled', res)
-            FluroContent.endpoint('my/purchases', false, true).query({}).$promise.then(function(purchases) {
-
-                updatePurchases(purchases);
-
-            });
-        }
-
-        function cancelFailed(err) {
-            console.log('Subscription cancel error', err)
-        }
-
-        PurchaseService.cancelSubscription(purchase).then(cancelSuccess, cancelFailed);
-    }
-
-}
-
-
-//////////////////////////////////////////////////////
-//////////////////////////////////////////////////////
-//////////////////////////////////////////////////////
-//////////////////////////////////////////////////////
-//////////////////////////////////////////////////////
-//////////////////////////////////////////////////////
-//////////////////////////////////////////////////////
-//////////////////////////////////////////////////////
-//////////////////////////////////////////////////////
-
-app.controller('PaymentMethodReplaceController', function($scope, $state, $timeout, FluroContent, PurchaseService) {
-
-
-    $scope.settings = {
-        addCard: {}
-    };
-
-    //Get ready for errors
-    $scope.errors = {};
-    $scope.invalid = false;
-
-    //////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////
-
-    $scope.hasErrors = function() {
-        return _.keys($scope.errors).length
-    }
-
-
-
-    //////////////////////////////////////////////////////
-
-    $scope.replaceWithNewCard = function(purchase, newCard) {
-
-        $scope.settings.state = 'processing';
-
-        //Create the new card
-        PurchaseService.createPaymentMethod(newCard).then(cardCreateSuccess, cardReplaceError);
-
-        function cardCreateSuccess(createdMethod) {
-            console.log('Card Create Success', createdMethod)
-            PurchaseService.replacePaymentMethod(purchase, createdMethod).then(function(res) {
-                //Method was replaced successfully
-                purchase.method = createdMethod;
-                $scope.settings.state = 'default';
-            }, cardReplaceError);
-        }
-
-        function cardReplaceError(err) {
-            $scope.settings.state = 'error';
-
-            if (err.message) {
-                return $scope.settings.errorMessage = err.message;
-            }
-
-            if (err.error) {
-                if (err.error.message) {
-                    return $scope.settings.errorMessage = err.error.message;
-                }
-                return $scope.settings.errorMessage = err.error;
-            }
-
-            return err;
-        }
-
-    }
-
-
-
-    //////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////
-
-    //Watch for changes to purchase data
-    $scope.$watch('settings.addCard', function(data) {
-
-        //Reset the errors
-        $scope.errors = {};
-
-        //Check if a name has been provided
-        if (!data.name || !data.name.length) {
-            $scope.errors['cardname'] = 'Card name is required'
-        }
-
-        //Make sure a number has been provided
-        if (!data.number || !data.number.length) {
-            $scope.errors['cardnumber'] = 'Card number is required'
-        }
-
-        //Ensure an expiry month has been provided
-        if (!data.exp_month || !data.exp_month.length) {
-            $scope.errors['exp_month'] = 'Card expiry month is required'
-        }
-
-        //Ensure an expiry year has been provided
-        if (!data.exp_year || !data.exp_year.length) {
-            $scope.errors['exp_year'] = 'Card expiry year is required'
-        }
-
-        //Ensure a CVC number has been provided
-        if (!data.cvc || !data.cvc.length) {
-            $scope.errors['cvc'] = 'Card Validation number is required'
-        }
-
-        ////////////////////////////////////////////////////////////
-
-        //Check if there are any errors
-        var hasErrors = _.keys($scope.errors).length;
-
-        //If there are errors then mark as invalid
-        if (hasErrors) {
-            $scope.invalid = true;
-        } else {
-            $scope.invalid = false;
-        }
-
-    }, true);
-
-
-
-});
-
-/**/
-
-ResetPasswordPageController.resolve = {
-    token: function($stateParams) {
-        return $stateParams.token;
-    },
-    user: function($q, token, FluroTokenService) {
-        //Deferred
-        var deferred = $q.defer();
-
-        var request = FluroTokenService.retrieveUserFromResetToken(token, {
-            application: true
+        	//Change this if you want to ensure the user login
+        	//or redirect to a login route 
+        	return deferred.resolve(null);
         });
 
-        request.then(function(res) {
-            return deferred.resolve(res.data);
-        }, function(err){
-            // still resolve but pass error to display
-            return deferred.resolve(err.data);
-        })
+        //////////////////////
 
         return deferred.promise;
-
-    },
-    seo: function(FluroSEOService) {
-        FluroSEOService.pageTitle = 'Reset Password';
-        return true;
     },
 }
 
-app.controller('ResetPasswordPageController', ResetPasswordPageController);
+////////////////////////////////////////////////////////////
 
-function ResetPasswordPageController($scope, $rootScope, PurchaseService, $state, FluroTokenService, $http, user, token) {
-
-      $scope.settings = {};
-
-      if(user && user._id){
-        $scope.persona = user;
-      } else {
-        $scope.settings.state = 'error';
-        $scope.settings.errorMessage = user;
-      }
-      $scope.token = token;
-
-      //////////////////////////////////////
-
-
-
-
-
-      //////////////////////////////////////
-      //////////////////////////////////////
-      //////////////////////////////////////
-      //////////////////////////////////////
-      //////////////////////////////////////
-
-
-      $scope.update = function() {
-          $scope.settings.state = 'processing';
-
-
-          function resetSuccess(res) {
-              $scope.settings.state = 'complete';
-              $state.go('home')
-          }
-
-          function resetFailed(err) {
-              $scope.settings.state = 'failed';
-              $scope.settings.errorMessage = err.data;
-          }
-
-          var request = FluroTokenService.updateUserWithToken(token, $scope.persona, {application:true});
-
-          request.then(resetSuccess, resetFailed);
-
-      }
-
-      //////////////////////////////////////
-
-      /**
-
-      //Load the URL
-      var url = '/fluro/application/reset/' + $stateParams.token;
-
-      //////////////////////////////////////
-
-      function success(res) {
-
-          $scope.persona = res.data;
-      }
-
-      function failed(err) {
-          console.log('Error', err);
-      }
-
-      //////////////////////////////////////
-
-      $http.get(url).then(success, failed);
-
-
-
-      /**/
-
+AppRouteController.data = {
+    // requireLogin: true,
 }
 
-SearchPageController.resolve = {
-    seo: function(FluroSEOService) {
-        FluroSEOService.pageTitle = 'Search';
-        return true;
-    },
-    articles: function(FluroContent) {
-        return FluroContent.resource('article').query().$promise;
-    },
-};
+////////////////////////////////////////////////////////////
 
-SearchPageController.data = {
-    requireLogin: true,
-}
+function AppRouteController($scope, $rootScope, session) {
 
-app.controller('SearchPageController', SearchPageController);
-
-function SearchPageController($scope) {
-
-}
-
-SignupPageController.resolve = {
-    seo: function(FluroSEOService) {
-        FluroSEOService.pageTitle = 'Sign up';
-        return true;
-    },
-}
-
-SignupPageController.data = {
-    denyAuthenticated: true,
-}
-
-app.controller('SignupPageController', SignupPageController);
-
-function SignupPageController($scope, $q, PurchaseService, $rootScope, Fluro, $state, $stateParams, FluroBreadcrumbService,  FluroContent, FluroTokenService) {
-
-
-    $scope.credentials = {}
-
-    //Object to store the current state of this page
-    $scope.settings = {};
-
-    //////////////////////////////////////
-
-    function redirectOnSignupComplete() {
-
-
-        if($stateParams.package)  {
-            return $state.go('package', {slug:$stateParams.package});
-        }
-
-
-        //If returnTo was set then return them to the video they wanted to watch
-        if($stateParams.returnTo) {
-
-            //Find out how long the breadcrumb trail is
-            var trailLength =  FluroBreadcrumbService.trail.length;
-            //Get the page before this login form
-            var lastPage = FluroBreadcrumbService.trail[trailLength-2];
-
-            return FluroBreadcrumbService.backTo(lastPage);
-        }
-
-        return $state.go('home');
-    }
-
-    //////////////////////////////////////
-
-    $scope.signup = function() {
-
-    	if(!$scope.credentials.firstName || !$scope.credentials.firstName.length) {
-    		return $scope.settings.error = 'First Name is a required field'
-    	}
-
-    	if(!$scope.credentials.lastName || !$scope.credentials.lastName.length) {
-    		return $scope.settings.error = 'Last Name is a required field'
-    	}
-
-    	if(!$scope.credentials.username || !$scope.credentials.username.length) {
-    		return $scope.settings.error = 'Email Address is a required field'
-    	}
-
-    	if(!$scope.credentials.password || !$scope.credentials.password.length) {
-    		return $scope.settings.error = 'Password is a required field'
-    	}
-
-    	if(!$scope.credentials.confirmPassword || !$scope.credentials.confirmPassword.length) {
-    		return $scope.settings.error = 'Please confirm your password'
-    	}
-
-    	if($scope.credentials.confirmPassword != $scope.credentials.password) {
-    		return $scope.settings.error = 'Your password and confirm password do not match'
-    	}
-
-
-
-    	//Set state to processing
-    	$scope.settings.state = 'processing';
-    	$scope.settings.error = null;
-
-        //////////////////////////////////////
-
-        //Sign in and authorise as a persona using this application
-        //This will mean the token returned combines the application's permissions and the application user's permissions
-        var request = FluroTokenService.signup($scope.credentials, {application:true});
-
-        //////////////////////////////////////
-
-        //Login and authentication was successful
-        function signupSuccess(res) {
-        	console.log('Signup success!!');
-
-            ///////////////////////////////////////////////////
-
-            //Check if there are any free products to collect upon signup
-            var freeProductIDs = _.chain($rootScope.applicationData.collectOnArrival)
-            .filter(function(product) {
-                return Number(product.amount) == 0;
-            })
-            .map(function(product) {
-                return product._id;
-            })
-            .value();
-
-            ///////////////////////////////////////////////////
-
-            //If there aren't any free products
-            //just redirect to the watch page
-            if(!freeProductIDs || !freeProductIDs.length) {
-
-
-
-                //Just head straight to search
-                return redirectOnSignupComplete();
-            }
-
-            //Tell the PurchaseService to collect free products on arrival
-            PurchaseService.collectFreeProducts(freeProductIDs).then(function(res) {
-                return redirectOnSignupComplete();
-            }, function(err) {
-                return redirectOnSignupComplete();
-            });
-
-        }
-
-        //////////////////////////////////////
-
-        //Login failed
-        function loginFailed(err) {
-            $scope.settings.state = 'ready';
-            console.log('FAILED', err);
-            $scope.settings.error = err.data;
-        }
-
-        //////////////////////////////////////
-
-        //Login failed
-        function signupFailed(err) {
-        	$scope.settings.state = 'ready';
-            console.log('FAILED', err);
-
-            if(err.data.errors) {
-
-                var errors =  _.map(err.data.errors, function(err) {
-                    return err.message;
-                })
-                return $scope.settings.error = errors[0];
-            }
-
-            $scope.settings.error = err.data;
-
-        }
-
-        //////////////////////////////////////
-
-        //Listen for the promise result
-        request.then(signupSuccess, signupFailed);
-
-    }
-
-
+	// console.log('TODO CHECK IF $rootScope.user ALREADY EXISTS HERE')
+	$rootScope.user = session;
 }

@@ -1,0 +1,37 @@
+<div class="notifications-bar {{$root.notifications.lastMessage().style}}" ng-class="{'empty':!$root.notifications.messages.length}">
+	<div class="notification">
+		<span>{{$root.notifications.lastMessage().text}}</span>
+	</div>
+</div>
+<!-- <div class="masthead"> -->
+	<!-- <div class="username" dropover>
+		<a ng-class="{active:dropover.open}">
+			<i class="far fa-user-circle"></i>
+			<span>{{$root.user.name}}</span>
+		</a>
+
+		<div class="dropover ng-animate-disabled" ng-if="dropover.open">
+			
+			<div class="dropover-panel border-bottom">
+				<i class="far fa-cog pull-right"></i>
+				<strong>{{$root.user.name}}</strong>
+				<div class="small text-muted">{{$root.user.email}}</div>
+			</div>
+
+			<ul class="dropover-menu">
+				<li>
+					<a ng-click="$root.logout()">
+						<i class="far fa-sign-out"></i>
+						<span>Sign Out</span>
+						
+					</a>
+				</li>
+			</ul>
+		</div>
+
+
+	</div> -->
+<!-- </div> -->
+
+
+<div  ui-view class="app-view"></div>

@@ -1,0 +1,52 @@
+.dropover {
+    position:absolute;
+    z-index:10000;
+    border-radius: 5px;
+    overflow:hidden;
+    box-shadow: 0 3px 15px rgba(#000, 0.1);
+
+    
+    .dropover-panel {
+        @extend .clearfix;
+        padding: 10px;
+    }
+
+    .dropover-menu {
+        margin:0;
+        padding:0;
+        list-style-type:none;
+        min-width:300px;
+
+        & > li {
+            margin:0;
+            padding:0;
+            list-style-type:none;
+            display:block;
+            @extend.border-bottom;
+
+            a {
+                display:block;
+                padding: 10px;
+                font-size: 0.9em;
+                font-weight:600;
+                transition: all 0.3s;
+
+                &:hover {
+                    // background: #444;
+                    color: #fff;
+                }
+
+                i {
+                    float:right;
+                    line-height:inherit;
+                    color: $brand-primary;
+                }
+
+            }
+
+            &:last-child {
+                border-bottom:none;
+            }
+        }
+    }
+}

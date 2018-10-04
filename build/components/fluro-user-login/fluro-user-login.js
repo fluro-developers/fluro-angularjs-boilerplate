@@ -38,7 +38,25 @@ app.controller('UserLoginController', function($scope, $http, FluroTokenService,
         }, function(res) {
             $scope.status = 'ready';
             console.log('FAILED', res);
-            NotificationService.message(String(res.data), 'danger')
+
+            if(res.status == -1) {
+
+                var appDevelopmentURL = getMetaKey('app_dev_url');
+
+                ////////////////////////////////////////////
+
+                if(appDevelopmentURL && appDevelopmentURL.length) {
+                    NotificationService.message('Update your trusted hosts for (' + appDevelopmentURL + ') to allow from this origin', 'danger')
+                } else {
+                    NotificationService.message('Network Security Error', 'danger')
+                }
+
+                ////////////////////////////////////////////
+
+
+            } else {
+                NotificationService.message(String(res.data), 'danger')
+            }
         })
     }
    

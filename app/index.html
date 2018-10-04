@@ -23,7 +23,7 @@
     <!--//////////////////////////////////////////-->
 
     <!-- Fluro Support -->
-    <meta property="fluro_url" content="https://api.staging.fluro.io">
+    <meta property="fluro_url" content="https://api.fluro.io">
 
     <!-- Change to your application domain name / url -->
     <meta property="app_dev_url" content="http://support.fluro.io">
@@ -60,172 +60,11 @@
 
     <base href="/">
 </head>
-<body ng-cloak>
+<body ng-cloak class="{{$root.bodyClass}}">
 
     <fluro-preloader></fluro-preloader>
 
-    <!-- app-wrapper -->
-    <div class="layout-outer" ng-class="{'expanded': $root.sidebarExpanded == true}">
-
-        <a class="btn-hamburger" ng-click="$root.sidebarExpanded = !$root.sidebarExpanded">
-            <hamburger ng-class="{open:$root.sidebarExpanded}"></hamburger>
-        </a>
-
-
-        <header class="masthead">
-
-            <div ng-if="$root.breadcrumb.trail.length <= 1 ">
-                <a class="logo-name" ui-sref-active="active" ui-sref="home">
-                    <span>{{$root.applicationData._application.title}}</span>
-                </a>
-            </div>
-            <div class="pull-left" ng-if="$root.breadcrumb.trail.length > 1">
-                <a class="btn-masthead" ng-click="$root.breadcrumb.back()">
-                    <i class="fa fa-angle-left"></i>
-                </a>
-                <a class="btn-masthead btn-home" ng-click="$root.breadcrumb.top()">
-                    <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-                    viewBox="0 0 70 70" enable-background="new 0 0 70 70" xml:space="preserve">
-                    <path id="XMLID_59_" fill="#231F20" d="M38.9,62.3V41.1h-7.9v21.2H9.5V30.5H4.5L35,0l30.5,30.5h-5.1v31.7H38.9z M42.8,58.4h13.8
-                    V28.1L35,5.5L13.4,28.1v30.3h13.8V37.2h15.6V58.4z"/>
-                </svg>
-            </a>
-        </div>
-
-        <div class="masthead-menu">
-            <ul ng-show="$root.user">
-                <li>
-                    <a ui-sref-active="active" ui-sref="search">
-                        <i class="fa fa-fw fa-search"></i>
-                        <span>{{'Search' | reword}}</span>
-                    </a>
-                </li>
-            </ul>
-            <ul ng-hide="$root.user">
-                <li>
-                    <a ui-sref-active="active" ui-sref-active="active" ui-sref="login.form">
-                        <span>{{'Login' | reword}}</span>
-                    </a>
-                </li>
-                <li ng-if="!$root.applicationData.disable.signup">
-                    <a ui-sref-active="active" ui-sref-active="active" ui-sref="signup">
-                        <span>{{'Signup' | reword}}</span>
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </header>
-
-
-
-
-    <div class="layout-main">
-        <div class="main-view" ui-view></div>
-        <div id="footer" class="footer">
-            <div class="wrapper-xs">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-xs-12 col-sm-6 text-center text-sm-left">
-                            <ul class="list-inline">
-                                <li>
-                                    <a>Privacy Policy</a>
-                                </li>
-                                <li>
-                                    <a>Terms &amp; Conditions</a>
-                                </li>
-                                <li>
-                                    <a href="https://www.fluro.io">Powered by Fluro</a>
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="col-xs-12 col-sm-6  text-center text-sm-right">
-                            <div class="btn-group">
-                                <a class="btn btn-link" ng-href="mailto:{{$root.applicationData.supportEmail}}">
-                                    <i class="fa fa-fw fa-envelope"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- overlay when sidebar is expanded -->
-    <div class="layout-blanket" ng-click="$root.sidebarExpanded = false"></div>
-
-    <!-- sidebar -->
-    <div class="layout-sidebar">
-        <div class="layout-sidebar-content">
-            <a class="sidebar-block border-bottom" ui-sref-active="active" ui-sref="myaccount" ng-if="$root.user">
-                <div class="row">
-                    <div class="col-xs-3">
-                        <div class="avatar">
-                            <img preload-image aspect="100" ng-src="{{$root.asset.avatarUrl($root.user.persona, 'persona', {w:80, h:80, cb:$root.avatarCache.buster})}}">
-                        </div>
-                    </div>
-                    <div class="col-xs-9">
-                        <h4>{{$root.user.firstName}} {{$root.user.lastName}}</h4>
-                    </div>
-                </div>
-            </a>
-
-
-            <a class="sidebar-block border-bottom" href="/#" ng-click="$root.sidebarExpanded = false;" ng-if="!$root.user">
-                <!-- When user isn't logged in maybe show a logo or something -->
-                {{$root.applicationData._application.title}}
-            </a>
-
-            <!-- Logged in User Menu -->
-            <div ng-if="$root.user">
-                <ul class="sidebar-menu">
-                    <li>
-                        <a ui-sref-active="active" ui-sref="home"></a>
-                    </li>
-                    <li>
-                        <a ui-sref-active="active" ui-sref="search">Search</a>
-                    </li>
-                    <li>
-                        <a ng-click="$root.logout()">Sign Out</a>
-                    </li>
-                </ul>
-            </div>
-
-            <!-- Logged out visitor -->
-            <div ng-if="!$root.user">
-                <ul class="sidebar-menu" >
-                    <li>
-                        <a ui-sref-active="active" ui-sref="home">Home</a>
-                    </li>
-                    <li>
-                        <a ui-sref-active="active" ui-sref="login.form">Login</a>
-                    </li>
-                    <li>
-                        <a ui-sref-active="active" ui-sref-active="active" ui-sref="signup">Signup</a>
-                    </li>
-                </ul>
-            </div>
-            <div class="sidebar-external-links">
-                <ul class="list-unstyled">
-                    <li>
-                        <a target="_blank">Small Link 1</a>
-                    </li>
-                    <li>
-                        <a target="_blank">Small Link 2</a>
-                    </li>
-                </ul>
-            </div>
-
-            <div class="sidebar-social-links">
-
-                <a target="_blank" ng-repeat="social in ['facebook', 'instagram', 'vimeo','envelope']">
-                    <i class="fa fa-fw fa-{{social}}"></i>
-                </a>
-
-            </div>
-        </div>
-    </div>
-</div>
+    <div class="site-view" ui-view></div>
 
 
 <!-- build:js /js/vendor.js -->
@@ -254,10 +93,10 @@
 <script src="/bower_components/validator-js/validator.js"></script>
 <script src="/bower_components/fluro.validate/dist/fluro.validate.js"></script>
 <script src="/bower_components/fluro-interactions/dist/fluro.interactions.js"></script>
-<script src="/bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
 <script src="/bower_components/SHA-1/sha1.js"></script>
 <script src="/bower_components/angulartics/src/angulartics.js"></script>
 <script src="/bower_components/angulartics-google-analytics/lib/angulartics-ga.js"></script>
+<script src="/bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
 <!-- endbower -->
 <script src="/bower_components/angular-formly-templates-bootstrap/dist/angular-formly-templates-bootstrap.js"></script>
 <!-- endbuild -->
